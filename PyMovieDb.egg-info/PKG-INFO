@@ -1,3 +1,22 @@
+Metadata-Version: 2.4
+Name: PyMovieDb
+Version: 0.0.9
+Summary: A Python Module that represents IMDB API
+Home-page: https://github.com/itsmehemant7/PyMovieDb
+Author: Hemant Malik
+Author-email: itsmehemant7@gmail.com
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests-html
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: summary
+
 
 # PyMovieDb 
 PyMovieDb is a python wrapper to represent the [IMDB](https://www.imdb.com) API. It helps you to get files i.e. Movies/TV-Series information from IMDB by scraping.
@@ -22,45 +41,6 @@ Use ```pip``` to install the module from pypi
 ## Documentation 
 
 **_NOTE: The API will return data as JSON not dict_**
-
-
-
-***IMDB(proxy=None, proxy_res_parser = None, timeout=None, debug=False):***
-
-**_- Use custom parameters only if you want to use your own page render service i.e. in case if imdb.com pages require page rendering_**
-
-- **proxy**: proxy URL if you want to use your own page render service. The page render proxy will open a url and return html content of the page.
-
-```default = None```
-  
-  Example: "https://scraper.myselenium.service/get-html-content?url="
-  
-  pyMovieDb will use it as: 
-  "https://scraper.myselenium.service/get-html-content?url=https://www.imdb.com/title/tt33270263/"
-  
-  Proxy Response example: 
-  ```python
-    {"status": 200, "html_content: "rendered page html source code here"} 
-  ```
-
-- **proxy_res_parser**: a python function which will be used to parse html. 
-
-```default = None```
-  
-  This is just to return HTML content of the page (Because pyMovieDb don't know your response structure)
-  
-  Example:
-
-  ```python
-     def proxy_fn(proxy_response):
-         return proxy_response.get('html_content')
-  ```
-
-
-- **timeout**: HTTPS request timeout, ```default = None```
-- **debug**: To print progress logs, ```default = False```
-
-
 
 **1) Getting a Movie/Tv-Series info :-**
 

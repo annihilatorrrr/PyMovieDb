@@ -2,7 +2,7 @@ import re
 import json
 import requests
 from PyMovieDb import ImdbParser
-from requests_html import HTMLSession
+from requests_html import HTMLSession, HTML
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -11,6 +11,10 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 class IMDB:
     """
         A class to represent IMDB API.
+
+        #parameters:
+          #1. proxy:
+          
 
         --------------
 
@@ -40,7 +44,11 @@ class IMDB:
             #8. popular_tv(genre=None, start_id=1, sort_by=None)
                 -- to get IMDB popular Tv-Series
     """
-    def __init__(self):
+    def __init__(self, proxy=None, proxy_res_parser=None, timeout=None, debug=False):
+        self.proxy = proxy
+        self.proxy_res_parser = proxy_res_parser
+        self.timeout = timeout
+        self.debug = debug
         self.session = HTMLSession()
         self.headers = {
            "Accept": "application/json, text/plain, */*",
@@ -50,6 +58,11 @@ class IMDB:
         self.baseURL = "https://www.imdb.com"
         self.search_results = {'result_count': 0, 'results': []}
         self.NA = json.dumps({"status": 404, "message": "No Result Found!", 'result_count': 0, 'results': []})
+
+    
+    def print_me(self, s):
+        if self.debug and isinstance(str,s):
+            print(s)
 
     # ..................................method to search on IMDB...........................................
     def search(self, name, year=None, tv=False, person=False):
@@ -72,7 +85,8 @@ class IMDB:
         else:
             assert isinstance(year, int)
             url = f"https://www.imdb.com/find?q={name}+{year}"
-        # print(url)
+        
+        self.print_me(f"searching: {url}")
 
         try:
             response = self.session.get(url)
@@ -81,14 +95,17 @@ class IMDB:
 
         # results = response.html.xpath("//table[@class='findList']/tr")
         results = response.html.xpath("//section[@data-testid='find-results-section-title']/div/ul/li")
-        # print(len(results))
+        self.print_me(f"Found: {len(results)} results")
+
         if tv is True:
             results = [result for result in results if "TV" in result.text]
 
         if person is True:
             results = response.html.xpath("//section[@data-testid='find-results-section-name']/div/ul/li")
             results = [result for result in results if 'name' in result.find('a')[0].attrs['href']]
-        # print(results)
+
+        self.print_me(f"Results: {results}")
+
         output = []
         for result in results:
             name = result.text.replace('\n', ' ')
@@ -116,12 +133,21 @@ class IMDB:
          @returns:- File/movie/TV info as JSON string.
         """
         try:
-            response = self.session.get(url)
-            result = response.html.xpath("//script[@type='application/ld+json']")[0].text
+            json_ld_path = "//script[@type='application/ld+json']"
+            if self.proxy and self.proxy_res_parser:
+                response = self.session.get(self.proxy + url, timeout=self.timeout)
+                html = self.proxy_res_parser(response.json())
+                html = HTML(html=html)
+                result = html.xpath(json_ld_path)[0].text
+            else:
+                response = self.session.get(url, timeout=self.timeout)
+                result = response.html.xpath(json_ld_path)[0].text
+
             result = ''.join(result.splitlines())  # removing newlines
             result = f"""{result}"""
             # print(result)
-        except IndexError:
+        except Exception as e:
+            self.print_me(e)
             return self.NA
         try:
             # converting json string into dict
