@@ -61,7 +61,7 @@ class IMDB:
 
     
     def print_me(self, s):
-        if self.debug and isinstance(str,s):
+        if self.debug and isinstance(s, str):
             print(s)
 
     # ..................................method to search on IMDB...........................................
