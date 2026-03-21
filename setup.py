@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="PyMovieDb",
-    version="0.1.1",
+    version="0.1.2",
     author="Hemant Malik",
     author_email="itsmehemant7@gmail.com",
     description="A Python Module that represents IMDB API",
