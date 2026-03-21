@@ -89,19 +89,26 @@ class IMDB:
         self.print_me(f"searching: {url}")
 
         try:
-            response = self.session.get(url)
+            if self.proxy and self.proxy_res_parser:
+                response = self.session.get(self.proxy + url, timeout=self.timeout)
+                html = self.proxy_res_parser(response.json())
+                html = HTML(html=html)
+            else:
+                response = self.session.get(url)
+                html = response.html
         except requests.exceptions.ConnectionError as e:
             response = self.session.get(url, verify=False)
+            html = response.html
 
         # results = response.html.xpath("//table[@class='findList']/tr")
-        results = response.html.xpath("//section[@data-testid='find-results-section-title']/div/ul/li")
+        results = html.xpath("//section[@data-testid='find-results-section-title']/div/ul/li")
         self.print_me(f"Found: {len(results)} results")
 
         if tv is True:
             results = [result for result in results if "TV" in result.text]
 
         if person is True:
-            results = response.html.xpath("//section[@data-testid='find-results-section-name']/div/ul/li")
+            results = html.xpath("//section[@data-testid='find-results-section-name']/div/ul/li")
             results = [result for result in results if 'name' in result.find('a')[0].attrs['href']]
 
         self.print_me(f"Results: {results}")
