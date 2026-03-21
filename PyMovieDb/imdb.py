@@ -81,10 +81,10 @@ class IMDB:
         name = name.replace(" ", "+")
 
         if year is None:
-            url = f"https://www.imdb.com/find?q={name}"
+            url = f"https://www.imdb.com/find/?q={name}"
         else:
             assert isinstance(year, int)
-            url = f"https://www.imdb.com/find?q={name}+{year}"
+            url = f"https://www.imdb.com/find/?q={name}+{year}"
         
         self.print_me(f"searching: {url}")
 
